@@ -1,0 +1,1 @@
+node_modules/\nout/\n.venv/\n__pycache__/\n*.pyc\n.env\n*.jar\ndist/\n.DS_Store
