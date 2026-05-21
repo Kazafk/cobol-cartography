@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from ..config import Settings, get_settings
 
-router = APIRouter()
+router = APIRouter(prefix="/api", tags=["health"])
 
 
 class HealthResponse(BaseModel):
@@ -11,23 +11,16 @@ class HealthResponse(BaseModel):
     version: str
 
 
-class FeaturesResponse(BaseModel):
-    indexing: bool
-    graph: bool
-    impact_analysis: bool
-    ai_explanation: bool
-
-
 class CapabilitiesResponse(BaseModel):
     ai_mode: str
-    features: FeaturesResponse
+    features: list[str]
     parser_version: str
     graph_backend: str
 
 
 @router.get("/health", response_model=HealthResponse)
-async def health(settings: Annotated[Settings, Depends(get_settings)]) -> HealthResponse:
-    return HealthResponse(status="ok", version=settings.version)
+async def health() -> HealthResponse:
+    return HealthResponse(status="ok", version="0.1.0")
 
 
 @router.get("/capabilities", response_model=CapabilitiesResponse)
@@ -36,12 +29,7 @@ async def capabilities(
 ) -> CapabilitiesResponse:
     return CapabilitiesResponse(
         ai_mode=settings.ai_mode,
-        features=FeaturesResponse(
-            indexing=False,
-            graph=False,
-            impact_analysis=False,
-            ai_explanation=False,
-        ),
-        parser_version="not_installed",
+        features=["indexing", "graph", "impact"],
+        parser_version="0.1.0",
         graph_backend=settings.graph_backend,
     )

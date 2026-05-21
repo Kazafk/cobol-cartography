@@ -19,23 +19,26 @@ def configure_logging(log_level: str) -> None:
         ),
         logger_factory=structlog.PrintLoggerFactory(),
     )
+    logging.basicConfig(
+        format="%(message)s",
+        level=logging.getLevelName(log_level),
+    )
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    settings = get_settings()
-    configure_logging(settings.log_level)
     log = structlog.get_logger()
-    log.info("cobol_cartography_starting", version=settings.version, ai_mode=settings.ai_mode)
+    log.info("cobol_cartography_starting", version="0.1.0")
     yield
     log.info("cobol_cartography_stopping")
 
 
 def create_app() -> FastAPI:
+    settings = get_settings()
+    configure_logging(settings.log_level)
     app = FastAPI(
-        title="COBOL Cartography",
+        title="Cobol Cartography",
         version="0.1.0",
-        description="COBOL portfolio analysis backend",
         lifespan=lifespan,
     )
     app.include_router(health_router)
