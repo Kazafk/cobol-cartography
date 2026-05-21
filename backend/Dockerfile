@@ -15,7 +15,6 @@ COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
 
 WORKDIR /app
-COPY src/ ./src/
 
 USER appuser
 EXPOSE 8000
