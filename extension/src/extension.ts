@@ -11,7 +11,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     context.subscriptions.push(registerIndexWorkspace(context, client));
 
     // Check backend health on activation (non-blocking, log only)
-    client.get<{ status: string }>('/health').then(
+    client.get<{ status: string }>('/api/health').then(
         () => console.log('[cobol-cartography] Backend connected'),
         (err) => console.warn('[cobol-cartography] Backend not reachable:', err)
     );

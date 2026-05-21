@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     parser_jar_path: str = ""
     graph_backend: str = "sqlite"
-    host: str = "0.0.0.0"
+    host: str = "127.0.0.1"
     port: int = 8000
 
 

@@ -32,7 +32,7 @@ export function registerIndexWorkspace(
                     progress.report({ message: 'Connecting to backend…' });
 
                     try {
-                        await client.get('/health');
+                        await client.get('/api/health');
                         void vscode.window.showInformationMessage(
                             'Index Workspace: connected to backend (not yet implemented)'
                         );
