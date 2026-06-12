@@ -9,12 +9,106 @@
   "activationEvents": ["onStartupFinished"],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "cobol-cartography",
+          "title": "COBOL Cartography",
+          "icon": "resources/inventory.svg"
+        }
+      ]
+    },
+    "views": {
+      "cobol-cartography": [
+        {
+          "id": "cobol-cartography.inventory",
+          "name": "Inventory"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "cobol-cartography.indexWorkspace",
-        "title": "COBOL Cartography: Index Workspace"
+        "title": "COBOL Cartography: Index Workspace",
+        "icon": "$(database)"
+      },
+      {
+        "command": "cobol-cartography.refreshInventory",
+        "title": "Refresh Inventory",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "cobol-cartography.showProgramSheet",
+        "title": "View Program Sheet",
+        "icon": "$(info)"
+      },
+      {
+        "command": "cobol-cartography.explainProgram",
+        "title": "Explain Program (AI)",
+        "icon": "$(lightbulb)"
+      },
+      {
+        "command": "cobol-cartography.analyzeCopybookImpact",
+        "title": "Analyze Copybook Impact",
+        "icon": "$(search)"
+      },
+      {
+        "command": "cobol-cartography.showGraphView",
+        "title": "COBOL Cartography: Show Graph",
+        "icon": "$(type-hierarchy)"
+      },
+      {
+        "command": "cobol-cartography.analyzeTableImpact",
+        "title": "COBOL Cartography: Analyze Table Impact",
+        "icon": "$(symbol-field)"
+      },
+      {
+        "command": "cobol-cartography.showJobPrograms",
+        "title": "Show Programs Executed by Job",
+        "icon": "$(list-tree)"
       }
     ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "cobol-cartography.refreshInventory",
+          "when": "view == cobol-cartography.inventory",
+          "group": "navigation"
+        },
+        {
+          "command": "cobol-cartography.indexWorkspace",
+          "when": "view == cobol-cartography.inventory",
+          "group": "navigation"
+        },
+        {
+          "command": "cobol-cartography.showGraphView",
+          "when": "view == cobol-cartography.inventory",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "cobol-cartography.showProgramSheet",
+          "when": "view == cobol-cartography.inventory && viewItem == cobol-file-program",
+          "group": "inline"
+        },
+        {
+          "command": "cobol-cartography.explainProgram",
+          "when": "view == cobol-cartography.inventory && viewItem == cobol-file-program",
+          "group": "inline"
+        },
+        {
+          "command": "cobol-cartography.analyzeCopybookImpact",
+          "when": "view == cobol-cartography.inventory && viewItem == cobol-file-copybook",
+          "group": "inline"
+        },
+        {
+          "command": "cobol-cartography.showJobPrograms",
+          "when": "view == cobol-cartography.inventory && viewItem == cobol-file-jcl",
+          "group": "inline"
+        }
+      ]
+    },
     "configuration": {
       "title": "COBOL Cartography",
       "properties": {
@@ -22,6 +116,12 @@
           "type": "string",
           "default": "http://localhost:8000",
           "description": "URL of the COBOL Cartography backend server"
+        },
+        "cobolCartography.copybookPaths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Additional paths to search for COBOL copybooks (absolute or relative to workspace root)"
         }
       }
     }

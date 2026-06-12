@@ -1,27 +1,41 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { BackendClient } from '../api/backendClient';
+import { getCopybookPaths } from '../config/settings';
 
-/**
- * Registers the `cobol-cartography.indexWorkspace` command.
- *
- * The command shows a progress notification while it contacts the backend
- * health endpoint. Full indexing logic will be added in a later task.
- *
- * @param context - Extension context, kept for future disposable management.
- * @param client  - Pre-configured backend HTTP client.
- * @returns A Disposable that can be added to context.subscriptions.
- */
+interface IndexResponse {
+    jobId: string;
+    status: string;
+    programs: number;
+    copybooks: number;
+    jclJobs: number;
+    errors: number;
+    unresolvedCopybooks: number;
+    graphNodes: number;
+    graphEdges: number;
+}
+
 export function registerIndexWorkspace(
-    context: vscode.ExtensionContext,
-    client: BackendClient
+    _context: vscode.ExtensionContext,
+    client: BackendClient,
+    onIndexed: () => void
 ): vscode.Disposable {
-    // context is accepted for API consistency and future use (e.g. storing
-    // state, registering additional disposables inside the command).
-    void context;
-
     return vscode.commands.registerCommand(
         'cobol-cartography.indexWorkspace',
         async () => {
+            const folders = vscode.workspace.workspaceFolders;
+            if (!folders || folders.length === 0) {
+                void vscode.window.showErrorMessage(
+                    'COBOL Cartography: No workspace folder open.'
+                );
+                return;
+            }
+
+            const workspacePath = folders[0].uri.fsPath;
+            const copybookPaths = getCopybookPaths().map(p =>
+                path.isAbsolute(p) ? p : path.join(workspacePath, p)
+            );
+
             await vscode.window.withProgress(
                 {
                     location: vscode.ProgressLocation.Notification,
@@ -29,12 +43,25 @@ export function registerIndexWorkspace(
                     cancellable: false,
                 },
                 async (progress) => {
-                    progress.report({ message: 'Connecting to backend…' });
+                    progress.report({ message: 'Scanning workspace…' });
 
                     try {
-                        await client.get('/api/health');
+                        const result = await client.post<IndexResponse>(
+                            '/api/index/workspace',
+                            {
+                                workspacePath,
+                                copybookPaths,
+                                sourceFormat: 'fixed',
+                                incremental: false,
+                            }
+                        );
+
+                        onIndexed();
+
                         void vscode.window.showInformationMessage(
-                            'Index Workspace: connected to backend (not yet implemented)'
+                            `COBOL Cartography: Indexed ${result.programs} programs, ` +
+                            `${result.copybooks} copybooks, ${result.jclJobs} JCL jobs — ` +
+                            `${result.graphNodes} nodes, ${result.graphEdges} edges.`
                         );
                     } catch (err) {
                         const message =

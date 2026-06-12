@@ -27,3 +27,8 @@ export async function getApiKey(
 ): Promise<string | undefined> {
     return context.secrets.get('cobol-cartography.apiKey');
 }
+
+export function getCopybookPaths(): string[] {
+    const config = vscode.workspace.getConfiguration('cobolCartography');
+    return config.get<string[]>('copybookPaths', []);
+}
